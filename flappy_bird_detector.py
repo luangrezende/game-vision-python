@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import mss
 import time
+import re
 
 def capture_screen_region(monitor):
     with mss.mss() as sct:
@@ -143,6 +144,165 @@ def detect_gameover_color_enhanced(frame):
     
     return []
 
+def detect_score_text(frame):
+    score_region = frame[5:35, 10:150]
+    
+    hsv = cv2.cvtColor(score_region, cv2.COLOR_BGR2HSV)
+    
+    lower_white = np.array([0, 0, 220])
+    upper_white = np.array([180, 25, 255])
+    white_mask = cv2.inRange(hsv, lower_white, upper_white)
+    
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
+    white_mask = cv2.morphologyEx(white_mask, cv2.MORPH_CLOSE, kernel)
+    
+    contours, _ = cv2.findContours(white_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    score_boxes = []
+    for contour in contours:
+        area = cv2.contourArea(contour)
+        if area > 20:
+            x, y, w, h = cv2.boundingRect(contour)
+            if w > 5 and h > 8:
+                score_boxes.append((x, y, w, h))
+    
+    return score_boxes, score_region
+
+def extract_score_from_region(frame):
+    score_boxes, score_region = detect_score_text(frame)
+    
+    if not score_boxes:
+        return -1
+    
+    gray = cv2.cvtColor(score_region, cv2.COLOR_BGR2GRAY)
+    _, thresh = cv2.threshold(gray, 180, 255, cv2.THRESH_BINARY)
+    
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 1))
+    thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+    
+    resized = cv2.resize(thresh, None, fx=4, fy=4, interpolation=cv2.INTER_CUBIC)
+    
+    contours, _ = cv2.findContours(resized, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    valid_contours = []
+    for contour in contours:
+        area = cv2.contourArea(contour)
+        x, y, w, h = cv2.boundingRect(contour)
+        if area > 50 and w > 8 and h > 15:
+            valid_contours.append((x, y, w, h))
+    
+    if not valid_contours:
+        return -1
+    
+    valid_contours.sort(key=lambda c: c[0])
+    
+    digit_patterns = {
+        '0': [
+            [1,1,1],
+            [1,0,1],
+            [1,0,1],
+            [1,0,1],
+            [1,1,1]
+        ],
+        '1': [
+            [0,1,0],
+            [1,1,0],
+            [0,1,0],
+            [0,1,0],
+            [1,1,1]
+        ],
+        '2': [
+            [1,1,1],
+            [0,0,1],
+            [1,1,1],
+            [1,0,0],
+            [1,1,1]
+        ],
+        '3': [
+            [1,1,1],
+            [0,0,1],
+            [1,1,1],
+            [0,0,1],
+            [1,1,1]
+        ],
+        '4': [
+            [1,0,1],
+            [1,0,1],
+            [1,1,1],
+            [0,0,1],
+            [0,0,1]
+        ],
+        '5': [
+            [1,1,1],
+            [1,0,0],
+            [1,1,1],
+            [0,0,1],
+            [1,1,1]
+        ],
+        '6': [
+            [1,1,1],
+            [1,0,0],
+            [1,1,1],
+            [1,0,1],
+            [1,1,1]
+        ],
+        '7': [
+            [1,1,1],
+            [0,0,1],
+            [0,0,1],
+            [0,0,1],
+            [0,0,1]
+        ],
+        '8': [
+            [1,1,1],
+            [1,0,1],
+            [1,1,1],
+            [1,0,1],
+            [1,1,1]
+        ],
+        '9': [
+            [1,1,1],
+            [1,0,1],
+            [1,1,1],
+            [0,0,1],
+            [1,1,1]
+        ]
+    }
+    
+    detected_digits = ""
+    
+    for x, y, w, h in valid_contours:
+        char_region = resized[y:y+h, x:x+w]
+        
+        if h >= 20 and w >= 10:
+            resized_char = cv2.resize(char_region, (3, 5), interpolation=cv2.INTER_AREA)
+            binary_char = (resized_char > 127).astype(int)
+            
+            best_match = '?'
+            best_score = 0
+            
+            for digit, pattern in digit_patterns.items():
+                pattern_array = np.array(pattern)
+                matches = np.sum(pattern_array == binary_char)
+                score = matches / pattern_array.size
+                
+                if score > best_score and score > 0.6:
+                    best_score = score
+                    best_match = digit
+            
+            if best_match.isdigit():
+                detected_digits += best_match
+    
+    score_digits = ""
+    for char in detected_digits:
+        if char.isdigit():
+            score_digits += char
+    
+    if score_digits:
+        return int(score_digits)
+    
+    return -1
+
 def main():
     screen_region = (334, 299, 400, 700)
     
@@ -151,7 +311,7 @@ def main():
                 'width': screen_region[2], 'height': screen_region[3]}
         
         games_played = 0
-        pipes_passed = 0
+        current_score = 0
         last_game_over_state = False
         
         while True:
@@ -160,9 +320,15 @@ def main():
             frame = np.array(sct.grab(bbox))
             frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
             
-            birds = detect_bird(frame)
-            pipes = detect_pipes(frame)
-            gameover_boxes = detect_gameover(frame)
+            game_frame = frame[100:, :]
+            
+            birds = detect_bird(game_frame)
+            pipes = detect_pipes(game_frame)
+            gameover_boxes = detect_gameover(game_frame)
+            
+            extracted_score = extract_score_from_region(game_frame)
+            if extracted_score >= 0:
+                current_score = extracted_score
             
             game_over_detected = len(gameover_boxes) > 0
             
@@ -170,7 +336,7 @@ def main():
                 games_played += 1
             
             if not game_over_detected and last_game_over_state:
-                pipes_passed = 0
+                current_score = 0
             
             last_game_over_state = game_over_detected
             
@@ -203,31 +369,39 @@ def main():
                     gap_start_y = top_pipe[1] + top_pipe[3]
                     gap_end_y = bottom_pipe[1]
                     
-                    cv2.line(frame, (score_line_x, gap_start_y), (score_line_x, gap_end_y), (0, 255, 255), 2)
-                    
-                    bird_crossed_line = bird_left > score_line_x
-                    
-                    if bird_crossed_line:
-                        pipes_passed += 1
+                    cv2.line(game_frame, (score_line_x, gap_start_y), (score_line_x, gap_end_y), (0, 255, 255), 2)
+            
+            score_boxes, score_region = detect_score_text(game_frame)
+            
+            cv2.rectangle(game_frame, (5, 5), (110, 35), (255, 255, 0), 2)
+            cv2.putText(game_frame, "Score Region", (25, 45), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (255, 255, 0), 1)
             
             for bird in birds:
-                cv2.rectangle(frame, (bird[0], bird[1]), (bird[0] + bird[2], bird[1] + bird[3]), (255, 0, 0), 2)
-                cv2.putText(frame, f"Bird: ({bird[0]}, {bird[1]})", (bird[0], bird[1] - 10),
+                cv2.rectangle(game_frame, (bird[0], bird[1]), (bird[0] + bird[2], bird[1] + bird[3]), (255, 0, 0), 2)
+                cv2.putText(game_frame, f"Bird: ({bird[0]}, {bird[1]})", (bird[0], bird[1] - 10),
                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
             
             for pipe in pipes:
-                cv2.rectangle(frame, (pipe[0], pipe[1]), (pipe[0] + pipe[2], pipe[1] + pipe[3]), (0, 255, 0), 2)
-                cv2.putText(frame, f"Pipe: ({pipe[0]}, {pipe[1]})", (pipe[0], pipe[1] - 10),
+                cv2.rectangle(game_frame, (pipe[0], pipe[1]), (pipe[0] + pipe[2], pipe[1] + pipe[3]), (0, 255, 0), 2)
+                cv2.putText(game_frame, f"Pipe: ({pipe[0]}, {pipe[1]})", (pipe[0], pipe[1] - 10),
                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             
             if gameover_boxes:
                 for box in gameover_boxes:
-                    cv2.rectangle(frame, (box[0], box[1]), (box[0] + box[2], box[1] + box[3]), (0, 0, 255), 2)
-                    cv2.putText(frame, f"Game Over: ({box[0]}, {box[1]})", (box[0], box[1] - 10),
+                    cv2.rectangle(game_frame, (box[0], box[1]), (box[0] + box[2], box[1] + box[3]), (0, 0, 255), 2)
+                    cv2.putText(game_frame, f"Game Over: ({box[0]}, {box[1]})", (box[0], box[1] - 10),
                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
             
-            cv2.putText(frame, f"Games: {games_played} | Pipes: {pipes_passed}", (10, 30),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+            frame[0:100, :] = [50, 50, 50]
+            cv2.rectangle(frame, (0, 0), (frame.shape[1], 100), (100, 100, 100), 2)
+            cv2.putText(frame, f"Games: {games_played} | Score: {current_score}", (10, 30),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+            cv2.putText(frame, f"AI Detection Status: Running", (10, 60),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            cv2.putText(frame, f"FPS: {int(1/(time.time()-start_time)) if time.time()-start_time > 0 else 0}", (10, 85),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
+            
+            frame[100:, :] = game_frame
             
             cv2.imshow('Flappy Bird Detection', frame)
             
