@@ -77,9 +77,9 @@ def detect_pipes(frame):
         area = cv2.contourArea(contour)
         x, y, w, h = cv2.boundingRect(contour)
         
-        if area > 300:
+        if area > 50:
             aspect_ratio = h / w if w > 0 else 0
-            if aspect_ratio > 0.7 and w > 15 and h > 25:
+            if aspect_ratio > 0.3 and w > 5 and h > 8:
                 pipe_boxes.append((x, y, w, h))
     
     return pipe_boxes

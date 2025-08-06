@@ -1,133 +1,119 @@
-# Flappy Bird Object Detection
+# 🎮 Flappy Bird Detection
 
-A minimal Python script that captures a screen region and detects the bird, pipes, and Game Over screen in Flappy Bird using simple color filtering with OpenCV.
+![Python](https://img.shields.io/badge/python-v3.13+-blue.svg)
+![OpenCV](https://img.shields.io/badge/OpenCV-4.x-green.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Status](https://img.shields.io/badge/status-active-success.svg)
 
-## Features
+A real-time computer vision system that detects and tracks objects in Flappy Bird gameplay using color-based detection.
 
-- **Screen Capture**: Uses `mss` library for fast screen capturing of a specific region
-- **Color-based Detection**: Detects bird (blue/yellow), pipes (green), and Game Over screen using HSV color filtering
-- **Real-time Visualization**: Draws bounding boxes around detected objects
-- **Console Output**: Prints coordinates of detected objects each frame
-- **Game State Detection**: Automatically detects when the game is over
-- **Configuration Helper**: Interactive tool to help adjust detection parameters
-- **Asset-based Calibration**: Uses real game assets for accurate color detection
+## ✨ Features
 
-## Requirements
+- **Real-time Bird Detection** - Tracks the bird using multi-color HSV filtering
+- **Pipe Detection** - Identifies upper and lower pipes with shape validation
+- **Game Over Detection** - Recognizes game over screen using color analysis
+- **Score Tracking** - Counts pipes passed and games played
+- **Visual Feedback** - Score lines in the gap between pipes
+- **Statistics Display** - Live game statistics overlay
 
-- Python 3.7+
-- OpenCV (`opencv-python`)
-- MSS (`mss`)
-- NumPy (`numpy`)
-- Tesseract OCR (`pytesseract`)
-- Pillow (`pillow`)
+## 🚀 Quick Start
 
-## Installation
+### Prerequisites
 
-1. Clone this repository
-2. Install Tesseract OCR:
-   - **Windows**: Download from https://github.com/UB-Mannheim/tesseract/wiki
-   - **Mac**: `brew install tesseract`
-   - **Linux**: `sudo apt install tesseract-ocr`
-3. Install the required Python packages:
-```bash
-pip install opencv-python mss numpy pytesseract pillow
-```
+- Python 3.13+
+- Windows (for MSS screen capture)
 
-## Usage
+### Installation
 
-### Quick Start
-1. Open Flappy Bird in your browser or app
-2. Run the detection script:
-```bash
-python flappy_bird_detector.py
-```
-3. Press 'q' to quit
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/luangrezende/game-vision-python.git
+   cd game-vision-python
+   ```
 
-### Configuration (Recommended)
-Before running the main script, use the configuration helper to:
-1. Find the correct screen coordinates for your game window
-2. Determine the right HSV color ranges for your specific version of Flappy Bird
-3. Test individual detection components (bird, pipes, Game Over)
+2. **Create and activate virtual environment:**
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\activate
+   ```
 
-```bash
-python config_helper.py
-```
+3. **Install dependencies:**
+   ```bash
+   pip install opencv-python numpy mss
+   ```
 
-**Menu Options:**
-- **1. Color Picker** - Click on game objects to see HSV values
-- **2. Test Capture Area** - Verify screen coordinates
-- **3. Test Pipe Detection** - Preview pipe detection with filters
-- **4. Test Bird Detection** - Preview bird detection specifically  
-- **5. Test Game Over Detection** - Preview Game Over screen detection
-- **6. Test Full Detection** - Preview all detections together
-- **7. Exit**
+### Usage
 
-## Configuration
+1. **Open Flappy Bird in your browser**
+2. **Run the detection script:**
+   ```bash
+   python flappy_bird_detector.py
+   ```
+3. **Press 'q' to quit**
 
-You may need to adjust these parameters in `flappy_bird_detector.py`:
+## 🔧 How It Works
 
-### Screen Region
-```python
-monitor = {"top": 100, "left": 100, "width": 600, "height": 800}
-```
+The script uses computer vision techniques to detect game elements:
 
-### Color Ranges
-```python
-# Bird (yellow) - adjust as needed
-lower_yellow = np.array([20, 100, 100])
-upper_yellow = np.array([30, 255, 255])
+1. **Screen Capture** - MSS library captures the game region (coordinates: 520, 275, 780, 475)
+2. **Color Filtering** - HSV color space filtering isolates specific game elements
+3. **Object Detection** - Contour analysis identifies and validates objects
+4. **Score Tracking** - Pipe grouping and gap detection for scoring
+5. **Visual Feedback** - Real-time overlay with bounding boxes and statistics
 
-# Pipes (green) - adjust as needed
-lower_green = np.array([40, 50, 50])
-upper_green = np.array([80, 255, 255])
-```
+### Detection Methods
 
-### Detection Thresholds
-```python
-# Minimum area for bird detection
-if area > 100:
+- **Bird**: Multi-color detection (blue, yellow, red, cyan) with size validation
+- **Pipes**: Green color filtering with background exclusion and shape validation  
+- **Game Over**: Enhanced color-based detection with area filtering
 
-# Minimum area for pipe detection  
-if area > 500:
-```
+## 📊 Statistics
 
-## How It Works
+The system tracks:
+- Pipes passed (score)
+- Games played
+- Real-time detection status
 
-1. **Screen Capture**: Captures a fixed region of the screen where the game is running
-2. **Color Filtering**: Converts the image to HSV color space and filters for specific color ranges
-3. **Asset-based Detection**: Uses color ranges derived from real game assets (bluebird-downflap.png, pipe-green.png, gameover.png)
-4. **Contour Detection**: Finds contours in the filtered masks
-5. **Object Classification**: Filters contours by area, aspect ratio, and size to distinguish between objects
-6. **Game State Recognition**: Detects Game Over screen to determine game state
-7. **Visualization**: Draws bounding rectangles and displays coordinates
+## 🎯 Configuration
 
-## Detection Details
+The detection region is pre-configured for standard Flappy Bird browser games:
+- **Region**: `(520, 275, 780, 475)` - 260x200 pixel capture area
+- **Bird Colors**: Blue, yellow, red, cyan HSV ranges
+- **Pipe Colors**: Green HSV ranges with background exclusion
+- **Game Over**: White/light gray color detection
 
-### Bird Detection
-- **Blue body**: HSV range [95, 150, 100] to [125, 255, 255]
-- **Yellow/Orange parts**: HSV range [95, 160, 200] to [105, 185, 255]  
-- **Red beak**: HSV range [5, 200, 200] to [15, 255, 255]
-- **Light blue areas**: HSV range [15, 100, 200] to [25, 130, 255]
+## 🔧 Technical Details
 
-### Pipe Detection  
-- **Green pipes**: HSV range [36, 85, 84] to [75, 187, 253]
-- **Background exclusion**: Removes background green automatically
-- **Morphological operations**: Connects pipe body with caps
+### Dependencies
+- `opencv-python` - Computer vision operations
+- `numpy` - Array operations and mathematical functions  
+- `mss` - Fast cross-platform screen capture
 
-### Game Over Detection
-- **OCR-based**: Uses Tesseract OCR to detect "GAME OVER" text directly
-- **Color fallback**: HSV range [10, 100, 100] to [25, 255, 255] for orange text
-- **Intelligent preprocessing**: Automatic image enhancement for better OCR accuracy
-- **High accuracy**: No false positives from similar colored objects
+### Key Functions
+- `detect_bird()` - Multi-color bird detection with morphological operations
+- `detect_pipes()` - Pipe detection with shape validation and grouping
+- `detect_gameover_color_enhanced()` - Game over state detection
+- Pipe scoring system with visual gap indicators
 
-## Tips
+## 🤝 Contributing
 
-- Use the configuration helper to find the exact HSV values for your game
-- Adjust the screen capture coordinates to focus on just the game area
-- Modify color ranges if the default values don't work for your version of Flappy Bird
-- Increase area thresholds if you're getting too much noise in detection
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
-## Files
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🎯 Future Enhancements
+
+- Multi-resolution support
+- Configurable detection regions
+- Performance optimizations
+- Additional game state detection
+
 
 - `flappy_bird_detector.py` - Main detection script with bird, pipe, and OCR-based Game Over detection
 - `config_helper.py` - Interactive configuration tool with comprehensive testing options
