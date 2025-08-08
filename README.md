@@ -1,131 +1,142 @@
-# 🎮 Flappy Bird Detection
+# 🧠 Pixel-Eye
 
-![Python](https://img.shields.io/badge/python-v3.13+-blue.svg)
-![OpenCV](https://img.shields.io/badge/OpenCV-4.x-green.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Status](https://img.shields.io/badge/status-active-success.svg)
+![Status](https://img.shields.io/badge/Status-In%20Development-yellow)
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+![OpenCV](https://img.shields.io/badge/OpenCV-4.x-brightgreen)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
 
-A real-time computer vision system that detects and tracks objects in Flappy Bird gameplay using color-based detection.
+## 📋 Description
+
+**Pixel-Eye** is a Python-based computer vision application for real-time analysis of game interfaces. The system detects and interprets visual elements (HUD, status, events) providing intelligent assistance to players through notifications, alerts, and tactical analysis.
+
+## 🎯 Objective
+
+- **Analyze** game graphical interfaces (HUD) in real-time
+- **Detect** critical visual events and patterns (low health, ammo, enemies)
+- **React** with smart notifications, automated commands, and visual overlays
+- **Assist** players with tactical analysis and data-driven suggestions
 
 ## ✨ Features
 
-- **Real-time Bird Detection** - Tracks the bird using multi-color HSV filtering
-- **Pipe Detection** - Identifies upper and lower pipes with shape validation
-- **Game Over Detection** - Recognizes game over screen using color analysis
-- **Score Tracking** - Counts pipes passed and games played
-- **Visual Feedback** - Score lines in the gap between pipes
-- **Statistics Display** - Live game statistics overlay
+### 🟢 Core Features
+- **Live HUD Reader** - Real-time detection of health, mana, ammo, and status
+- **Critical State Alerts** - Audio and visual notifications for important events
+- **Visual Assistant** - Enemy detection and movement analysis
+- **Tactical Analysis** - Data collection for optimized strategy suggestions
 
-## 🚀 Quick Start
+### 🔵 In Development
+- **Data Recording** - Match logging and replay system
+- **TTS Integration** - Customizable spoken alerts
+- **Machine Learning** - Advanced detection models with CNN
+- **Customizable Overlay** - Adaptive visual interface over the game
 
-### Prerequisites
+## 🔧 Technology Stack
 
-- Python 3.13+
-- Windows (for MSS screen capture)
+| Technology | Version | Usage |
+|------------|---------|-------|
+| **OpenCV** | 4.x | Real-time image capture and processing |
+| **Pillow** | 10.x | Image manipulation and optimization |
+| **PyAutoGUI** | 0.9.x | Game window detection and capture |
+| **pytesseract** | 0.3.x | OCR for interface text extraction |
+| **NumPy** | 1.24.x | Pixel analysis and comparison |
+| **PyTorch** | 2.x | Complex detection models (optional) |
+| **pygame** | 2.5.x | Debug interface and visual overlay |
 
-### Installation
+## 📦 Architecture
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/luangrezende/game-vision-python.git
-   cd game-vision-python
-   ```
+```
+pixel-eye/
+├── 📂 core/
+│   ├── capture.py       # Screen capture module
+│   ├── processor.py     # Processing pipeline
+│   └── detector.py      # Event detection
+├── 📂 modules/
+│   ├── hud_reader.py    # HUD reading
+│   ├── alerts.py        # Alert system
+│   └── analytics.py     # Tactical analysis
+├── 📂 utils/
+│   ├── config.py        # Configuration
+│   └── helpers.py       # Helper functions
+├── 📂 tests/            # Unit tests
+└── main.py              # Main application
+```
 
-2. **Create and activate virtual environment:**
-   ```bash
-   python -m venv .venv
-   .venv\Scripts\activate
-   ```
+## 🚀 Installation
 
-3. **Install dependencies:**
-   ```bash
-   pip install opencv-python numpy mss
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/your-username/pixel-eye.git
+cd pixel-eye
 
-### Usage
+# Create a virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# or
+venv\Scripts\activate  # Windows
 
-1. **Open Flappy Bird in your browser**
-2. **Run the detection script:**
-   ```bash
-   python flappy_bird_detector.py
-   ```
-3. **Press 'q' to quit**
+# Install dependencies
+pip install -r requirements.txt
 
-## 🔧 How It Works
+# Configure Tesseract OCR (if needed)
+# Windows: https://github.com/UB-Mannheim/tesseract/wiki
+# Linux: sudo apt-get install tesseract-ocr
+```
 
-The script uses computer vision techniques to detect game elements:
+## 💻 Basic Usage
 
-1. **Screen Capture** - MSS library captures the game region (coordinates: 520, 275, 780, 475)
-2. **Color Filtering** - HSV color space filtering isolates specific game elements
-3. **Object Detection** - Contour analysis identifies and validates objects
-4. **Score Tracking** - Pipe grouping and gap detection for scoring
-5. **Visual Feedback** - Real-time overlay with bounding boxes and statistics
+```python
+from pixel_eye import PixelEye
 
-### Detection Methods
+# Initialize Pixel-Eye
+eye = PixelEye(game_window="Game Name")
 
-- **Bird**: Multi-color detection (blue, yellow, red, cyan) with size validation
-- **Pipes**: Green color filtering with background exclusion and shape validation  
-- **Game Over**: Enhanced color-based detection with area filtering
+# Set region of interest
+eye.set_roi(x=100, y=50, width=800, height=600)
 
-## 📊 Statistics
+# Start monitoring
+eye.start_monitoring(
+    detect_health=True,
+    alert_threshold=30,  # Alert when health < 30%
+    enable_overlay=True
+)
+```
 
-The system tracks:
-- Pipes passed (score)
-- Games played
-- Real-time detection status
+## 📊 Use Cases
 
-## 🎯 Configuration
+- 🎮 **Assistive Gaming** - Help players with visual impairments
+- 🤖 **Automation** - Detect "Game Over" for automatic restart
+- 📈 **Competitive Analysis** - Optimize performance in eSports
+- 🧪 **AI Research** - Train reinforcement learning models
 
-The detection region is pre-configured for standard Flappy Bird browser games:
-- **Region**: `(520, 275, 780, 475)` - 260x200 pixel capture area
-- **Bird Colors**: Blue, yellow, red, cyan HSV ranges
-- **Pipe Colors**: Green HSV ranges with background exclusion
-- **Game Over**: White/light gray color detection
+## 🗺️ Roadmap
 
-## 🔧 Technical Details
-
-### Dependencies
-- `opencv-python` - Computer vision operations
-- `numpy` - Array operations and mathematical functions  
-- `mss` - Fast cross-platform screen capture
-
-### Key Functions
-- `detect_bird()` - Multi-color bird detection with morphological operations
-- `detect_pipes()` - Pipe detection with shape validation and grouping
-- `detect_gameover_color_enhanced()` - Game over state detection
-- Pipe scoring system with visual gap indicators
+- [ ] Basic screen capture system
+- [ ] Pixel comparison detection
+- [ ] Integrated OCR for text reading
+- [ ] Configurable alert system
+- [ ] GUI for configuration
+- [ ] Full multi-platform support
+- [ ] Pre-trained ML models
+- [ ] REST API for external integration
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🎯 Future Enhancements
+## ⚠️ Disclaimer
 
-- Multi-resolution support
-- Configurable detection regions
-- Performance optimizations
-- Additional game state detection
+This software is intended for educational and accessibility purposes. Usage in online games must comply with each game's Terms of Service. The developers are not responsible for misuse.
 
+## 📧 Contact
 
-- `flappy_bird_detector.py` - Main detection script with bird, pipe, and OCR-based Game Over detection
-- `config_helper.py` - Interactive configuration tool with comprehensive testing options
-- `analyze_assets.py` - Asset color analyzer for calibrating detection ranges
-- `test_ocr_gameover.py` - OCR testing tool for Game Over detection debugging
-- `README.md` - This file
-- `requirements.txt` - Python package dependencies
+For questions, suggestions, or partnerships, please open an [issue](https://github.com/your-username/pixel-eye/issues) on GitHub.
 
-## Output
+---
 
-The script provides:
-- **Visual feedback**: Real-time display with bounding boxes (red=bird, blue=pipes, yellow=Game Over)
-- **Console output**: Coordinates and dimensions of detected objects
-- **Game status**: Displays current game state (Playing/Game Over)
-- **Detection counts**: Shows number of each object type detected per frame
+<p align="center">
+  Built with ❤️ for the gaming community
