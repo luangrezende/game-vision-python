@@ -6,18 +6,18 @@
 ![OpenCV](https://img.shields.io/badge/OpenCV-4.x-brightgreen)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
 
-## 📋 Description
+## Description
 
 **Pixel-Eye** is a Python-based computer vision application for real-time analysis of game interfaces. The system detects and interprets visual elements (HUD, status, events) providing intelligent assistance to players through notifications, alerts, and tactical analysis.
 
-## 🎯 Objective
+## Objective
 
 - **Analyze** game graphical interfaces (HUD) in real-time
 - **Detect** critical visual events and patterns (low health, ammo, enemies)
 - **React** with smart notifications, automated commands, and visual overlays
 - **Assist** players with tactical analysis and data-driven suggestions
 
-## ✨ Features
+## Features
 
 ### 🟢 Core Features
 - **Live HUD Reader** - Real-time detection of health, mana, ammo, and status
@@ -31,7 +31,7 @@
 - **Machine Learning** - Advanced detection models with CNN
 - **Customizable Overlay** - Adaptive visual interface over the game
 
-## 🔧 Technology Stack
+## Technology Stack
 
 | Technology | Version | Usage |
 |------------|---------|-------|
@@ -43,7 +43,7 @@
 | **PyTorch** | 2.x | Complex detection models (optional) |
 | **pygame** | 2.5.x | Debug interface and visual overlay |
 
-## 📦 Architecture
+## Architecture
 
 ```
 pixel-eye/
@@ -62,7 +62,7 @@ pixel-eye/
 └── main.py              # Main application
 ```
 
-## 🚀 Installation
+## Installation
 
 ```bash
 # Clone the repository
@@ -83,7 +83,7 @@ pip install -r requirements.txt
 # Linux: sudo apt-get install tesseract-ocr
 ```
 
-## 💻 Basic Usage
+## Basic Usage
 
 ```python
 from pixel_eye import PixelEye
@@ -102,14 +102,14 @@ eye.start_monitoring(
 )
 ```
 
-## 📊 Use Cases
+## Use Cases
 
-- 🎮 **Assistive Gaming** - Help players with visual impairments
-- 🤖 **Automation** - Detect "Game Over" for automatic restart
-- 📈 **Competitive Analysis** - Optimize performance in eSports
-- 🧪 **AI Research** - Train reinforcement learning models
+-  **Assistive Gaming** - Help players with visual impairments
+-  **Automation** - Detect "Game Over" for automatic restart
+-  **Competitive Analysis** - Optimize performance in eSports
+-  **AI Research** - Train reinforcement learning models
 
-## 🗺️ Roadmap
+## Roadmap
 
 - [ ] Basic screen capture system
 - [ ] Pixel comparison detection
@@ -120,11 +120,11 @@ eye.start_monitoring(
 - [ ] Pre-trained ML models
 - [ ] REST API for external integration
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
@@ -132,7 +132,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 This software is intended for educational and accessibility purposes. Usage in online games must comply with each game's Terms of Service. The developers are not responsible for misuse.
 
-## 📧 Contact
+## Contact
 
 For questions, suggestions, or partnerships, please open an [issue](https://github.com/your-username/pixel-eye/issues) on GitHub.
 
